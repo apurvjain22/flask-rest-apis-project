@@ -1,0 +1,91 @@
+# JSON
+- Json is a long string with a particular format
+- At the top level of a piece of JSON we can have an object or a list.
+- objects are not ordered
+e.g: [{}], {{}}
+- diff b/w json and python dict
+    > json is a string while dict is a python object
+- when we return a python dict in a flask route, flask automatically turns it into JSON for us,
+i.e. in the background it is getting stringify
+- 'Turning into json' means 2 things:
+    > change python keywords and values so they match the JSON standard(e.g True to true)
+    > Turn the whole thing into a single string that our API can return.
+
+
+# Blueprint in flask-smorest
+- It is used to divide an api's into multiple segments and is helpful in displaying in swagger
+- @blp.arguments() - it will inject the validated data into our method for us.
+ex:
+@blp.arguments(ItemSchema)
+def post(self, item_data):
+    pass
+
+Here item_data is going to contain JSON which is the validated fields that the schema is requested.
+The JSON that the client sends is passed through the ItemSchema, it checks that the fields are there and
+they're the valid types.
+
+
+# Marshmallow
+- It is used for validation
+
+- @blp.arguments(StoreSchema)
+    - this decorator means that the payload which would be send by the user would first get validated in the marshmallow
+    and then it would be send back as a json and that json would be captured in the function arguments like
+    def get(data_json) - so here data_json would be the validated json
+
+- @blp.response(200, SchemaName(many=True))
+    - by decorating the response on http methods, will first validate the data through marshmallow schema
+    - and at the same time it will tell the success response as well i.e. how it would look like
+    - if there is a field called as many=True, it means that, in a db a key would have many tables associated with it
+    so to showcase multiple data with respect to that key that is why we are giving many=True option.
+
+# Docker
+- Virtual Machine is an emulation of an os
+-
+
+# JWT (JSON WEB TOKEN)
+- It contains 3 things:
+    - header: type and algo
+    - payload: contains data
+    - signature: to verify
+
+# Flask-migrate
+- It install another lib called Alembic
+- Flask-migrate is the connection b/w alembic and flask
+- Once we are using flask-migrate to create our db, we no longer need SQLAlchemy to do it.
+- when doing flask db init, we will get a folder name as migrations
+    - versions: when bunch of migrations happens to our db over a time, it would contain those changes
+    - alembic.ini: config file
+    - env: script used by alembic to generate the migrations file and migration is just a change to our db
+    - script.py.mako: is a template for the migrations file
+
+- when we first run first "flask db migrate":
+    - we will first delete the db before running the above command
+    - this will generate the first migration
+    - and what happens in the background is the alembic library will look at the existing db and
+    - it will compare teh existing db with the db defined by our models
+    - And it will create a script that allows you to go from one to the other because our db was initially empty.
+    - Running flask db migrate will create a new migration that we can see in versions folder
+    - that takes an empty database and turns it into the db defined by our models.
+
+Note:
+- The database only needs to be empty for the first migration,
+- but not for every subsequent migration thereafter.
+- So after the first, we can then start adding data which will persist through all future upgrades.
+- Ideally, you'd use database migrations from the beginning of our project and
+- then you wouldn't have to follow above process.
+
+- going through versions file after doing first migrate
+    - revision variable would tell on which version the db is currently on
+    - down_revision: this is useful when you have to rollback a migration and undo the changes
+    - upgrade(): is used for going from the previous revision to the current one
+    - downgrade(): is used for going from current to previous version
+
+- by doing flask init migrate doesn't create a table in the database
+- we have to run "flask db upgrade" command and this will migrate from down_revision which is None here to current
+which is there in revision variable
+- when making a changes in the existing table then migration comes handy in this picture
+- After making the changes run the commands "flask db migrate", this will create another version in the version folder
+- and now in the new version file, we can see that revision points to the new migration
+- while down_revision will contain the current version to which currently pointing to db
+- Now running "flask db upgrade", the actual changes will be migrated to the db
