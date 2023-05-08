@@ -4,6 +4,7 @@ from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from dotenv import load_dotenv
 
 from db import db
 from blocklist import BLOCKLIST
@@ -19,8 +20,10 @@ def create_app(db_url=None):
     :param db_url: if given we will connect to the provided db
     :return: flask app
     """
+    load_dotenv()  # will load .env file and will populate DATABASE_URL param from the same
     # creating an instance of a flask class by passing application's module or package name, and
     # we are also passing data.db path as now data.db is created under instance folder
+    print(os.getenv('DATABASE_URL'))
     app = Flask(__name__, instance_path=os.getcwd())
     # configuration options
     app.config[
